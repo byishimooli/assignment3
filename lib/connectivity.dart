@@ -1,0 +1,68 @@
+import 'package:connectivity/connectivity.dart';
+import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(title: Text('Internet Connectivity')),
+        body: Center(
+          child: InternetConnectivityWidget(),
+        ),
+      ),
+    );
+  }
+}
+
+class InternetConnectivityWidget extends StatefulWidget {
+  @override
+  _InternetConnectivityWidgetState createState() =>
+      _InternetConnectivityWidgetState();
+}
+
+class _InternetConnectivityWidgetState
+    extends State<InternetConnectivityWidget> {
+  var connectivityResult = ConnectivityResult.none;
+
+  @override
+  void initState() {
+    super.initState();
+    initConnectivity();
+    Connectivity().onConnectivityChanged.listen((result) {
+      setState(() {
+        connectivityResult = result;
+      });
+      showToast();
+    });
+  }
+
+  Future<void> initConnectivity() async {
+    var connectivityResult = await Connectivity().checkConnectivity();
+    setState(() {
+      this.connectivityResult = connectivityResult;
+    });
+  }
+
+  void showToast() {
+    String message = 'Internet is ';
+    if (connectivityResult == ConnectivityResult.none) {
+      message += 'not available.';
+    } else {
+      message += 'available.';
+    }
+    Fluttertoast.showToast(
+      msg: message,
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Text('Internet Connectivity: $connectivityResult');
+  }
+}
